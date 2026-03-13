@@ -3,249 +3,1223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API SENTINEL | CYBER RECON UNIT</title>
+    <title>API Sentinel | Professional Security Audit Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --neon-blue: #00f2ff;
-            --neon-green: #39ff14;
-            --bg-dark: #020617;
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-lighter: #1e293b;
+            --dark-card: #334155;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #475569;
+            --terminal-cyan: #06b6d4;
+            --terminal-purple: #8b5cf6;
+            --terminal-blue: #3b82f6;
+            --terminal-green: #10b981;
+            --terminal-red: #ef4444;
+            --terminal-yellow: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-dark);
-            font-family: 'Inter', sans-serif;
-            background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            text-transform: uppercase;
         }
 
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        .cyber-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 242, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
         }
 
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 10px; }
         }
 
-        .scan-line {
-            height: 2px;
-            background: linear-gradient(to bottom, transparent, var(--neon-blue), transparent);
-            animation: scan 3s linear infinite;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
         }
 
-        pre {
-            background: #000;
+        .glass-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(6, 182, 212, 0.3);
             border-radius: 12px;
-            padding: 15px;
-            border: 1px solid rgba(57, 255, 20, 0.2);
-            color: var(--neon-green);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(6, 182, 212, 0.1),
+                inset 0 0 20px rgba(6, 182, 212, 0.05);
+            position: relative;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-purple), var(--terminal-blue));
+            border-radius: 12px;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-purple));
+            padding: 2px;
+            border-radius: 12px;
+        }
+
+        .gradient-border-inner {
+            background: var(--dark);
+            border-radius: 10px;
+            padding: 24px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-blue));
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .input-field {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--terminal-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--terminal-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--terminal-yellow);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--terminal-green);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(6, 182, 212, 0.2);
+            border-top: 3px solid var(--terminal-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+            border: 1px solid var(--terminal-green);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+        }
+
+        .metric-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .metric-card:hover::before {
+            left: 100%;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-bubble {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .chat-bubble:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(6, 182, 212, 0.4);
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 400px;
+            height: 500px;
+            background: var(--dark);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-window.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-purple));
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(30, 41, 59, 0.5);
+        }
+
+        .chat-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(6, 182, 212, 0.2);
+            display: flex;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chat-send {
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-blue));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .chat-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--terminal-cyan), var(--terminal-blue));
+            color: white;
+            border-bottom-right-radius: 4px;
+            text-align: right;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(30, 41, 59, 0.8);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .code-block {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             overflow-x: auto;
-            white-space: pre-wrap;
+            color: var(--terminal-cyan);
         }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--terminal-cyan), var(--terminal-purple));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+        }
+
+        .vulnerability-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .vulnerability-card::before {
+            content: '>';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: var(--terminal-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+        }
+
+        .vulnerability-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.5);
+        }
+
+        .severity-critical {
+            border-left: 4px solid var(--terminal-red);
+            border-color: var(--terminal-red);
+        }
+
+        .severity-medium {
+            border-left: 4px solid var(--terminal-yellow);
+            border-color: var(--terminal-yellow);
+        }
+
+        .severity-low {
+            border-left: 4px solid var(--terminal-green);
+            border-color: var(--terminal-green);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .chat-window {
+                width: calc(100vw - 40px);
+                right: -10px;
+            }
+            
+            .metric-card {
+                margin-bottom: 16px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .terminal-text {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        p, span, div {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
     </style>
 </head>
-<body class="text-slate-300 min-h-screen">
-
-    <nav class="border-b border-cyan-900/30 bg-black/40 backdrop-blur-xl p-4 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-cyan-500/10 rounded-lg border border-cyan-500/50 flex items-center justify-center">
-                    <span class="text-xl">🛡️</span>
-                </div>
-                <div>
-                    <h1 class="text-xl font-black tracking-tighter text-cyan-400 italic uppercase">API  Sentinel</h1>
-                    <p class="text-[10px] font-mono text-cyan-700 tracking-[0.2em] uppercase">Security Recon Unit</p>
-                </div>
-            </div>
-            <span class="text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full text-cyan-400 uppercase">V1.0.8-EXPERT</span>
-        </div>
-    </nav>
-
-    <main class="max-w-5xl mx-auto p-6 mt-8">
-        
-        <div class="cyber-card p-1 relative overflow-hidden rounded-[2rem]">
-            <div class="scan-line absolute w-full top-0 left-0 opacity-20"></div>
-            <div class="p-8">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-4 flex items-center text-cyan-500/50 font-mono text-xs uppercase">Target_URL:</div>
-                        <input id="urlInput" type="text" placeholder="https://api.vulnerable.target" 
-                            class="w-full bg-black/60 border border-cyan-900/50 p-5 pl-28 rounded-2xl outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 transition-all text-cyan-100 font-mono text-sm">
+<body>
+    <!-- Navigation -->
+    <nav class="glass-card sticky top-0 z-50 mb-8">
+        <div class="container py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold terminal-text">[S]</span>
                     </div>
-                    <button onclick="startScan()" 
-                        class="bg-cyan-600 hover:bg-cyan-500 text-white font-black px-12 py-5 rounded-2xl transition-all active:scale-95 shadow-[0_0_30px_rgba(8,145,178,0.3)] uppercase tracking-widest text-xs">
-                        START SCAN
+                    <div>
+                        <h1 class="text-xl font-bold text-cyan-400 terminal-text glow-text">API SENTINEL</h1>
+                        <p class="text-xs text-cyan-600 terminal-text">[ETHICAL HACKING SUITE V2.0]</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="status-badge status-success terminal-text">
+                        <span class="blink">■</span>
+                        SYSTEM ONLINE
+                    </span>
+                    <button class="text-cyan-400 hover:text-cyan-300 transition-colors terminal-text">
+                        <span class="text-xl">[CONFIG]</span>
                     </button>
                 </div>
             </div>
         </div>
+    </nav>
 
-        <div id="loadingArea" class="hidden mt-10 p-10 cyber-card rounded-[2rem] border border-cyan-500/20">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="h-2 w-2 rounded-full bg-cyan-500 animate-ping"></div>
-                <span class="font-mono text-xs text-cyan-500 uppercase tracking-widest">Executing Security Protocols...</span>
-            </div>
-            <div class="space-y-2 font-mono text-[11px] text-cyan-800">
-                <p>> Initializing local environment...</p>
-                <p>> Mapping network topology...</p>
-                <p>> Injecting test payloads into target endpoints...</p>
-                <p class="animate-pulse">> Awaiting server response headers...</p>
-            </div>
-        </div>
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Scanner Section -->
+        <section class="mb-12">
+            <div class="gradient-border">
+                <div class="gradient-border-inner">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-cyan-400 mb-4 terminal-text glow-text">[INITIATE SECURITY PROTOCOL]</h2>
+                        <p class="text-cyan-600 terminal-text">> ENTER TARGET API ENDPOINT FOR VULNERABILITY ASSESSMENT</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-cyan-500 mb-2 terminal-text">[TARGET_URL]:</label>
+                            <input 
+                                type="text" 
+                                id="urlInput" 
+                                placeholder="HTTPS://TARGET.DOMAIN/API"
+                                class="input-field"
+                            >
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="startScan()" class="btn-primary w-full terminal-text">
+                                <span class="terminal-text">[EXECUTE SCAN]</span>
+                            </button>
+                        </div>
+                    </div>
 
-        <div id="resultsArea" class="hidden mt-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-                <div class="cyber-card p-8 rounded-[2rem] text-center flex flex-col justify-center border-b-4 border-cyan-500">
-                    <p class="text-[10px] font-mono text-cyan-700 uppercase tracking-widest mb-2">Recon Score</p>
-                    <div id="scoreDisplay" class="text-7xl font-black text-white italic tracking-tighter">--</div>
-                </div>
-                <div class="md:col-span-3 cyber-card p-8 rounded-[2rem] flex flex-col justify-center">
-                    <p class="text-[10px] font-mono text-cyan-700 uppercase tracking-widest mb-4">Analyst Summary</p>
-                    <p id="threatLevel" class="text-slate-100 text-lg font-light leading-relaxed italic"></p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="metric-card">
+                            <div class="metric-value terminal-text" id="scanCount">0000</div>
+                            <div class="metric-label terminal-text">[SCANS_COMPLETE]</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value terminal-text" id="avgScore">--</div>
+                            <div class="metric-label terminal-text">[AVG_SCORE]</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value terminal-text" id="threatCount">0000</div>
+                            <div class="metric-label terminal-text">[THREATS_FOUND]</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value terminal-text" id="scanTime">--:--</div>
+                            <div class="metric-label terminal-text">[LAST_SCAN]</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="reportList" class="grid grid-cols-1 gap-6 pb-32"></div>
-        </div>
+        </section>
+
+        <!-- Loading Section -->
+        <section id="loadingSection" class="hidden mb-12">
+            <div class="glass-card p-8 text-center">
+                <div class="loading-spinner mx-auto mb-6"></div>
+                <h3 class="text-xl font-semibold text-cyan-400 mb-2 terminal-text glow-text">[RUNNING SECURITY PROTOCOLS]</h3>
+                <p class="text-cyan-600 mb-6 terminal-text">> ANALYZING TARGET VULNERABILITIES...</p>
+                
+                <div class="space-y-4 text-left max-w-md mx-auto">
+                    <div class="flex items-center gap-3">
+                        <span class="text-cyan-400 terminal-text">[■]</span>
+                        <span class="text-sm text-cyan-600 terminal-text">> INITIALIZING ATTACK VECTORS...</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-cyan-400 terminal-text">[■]</span>
+                        <span class="text-sm text-cyan-600 terminal-text">> PROBING ENDPOINT CONFIGURATIONS...</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                        <span class="text-sm text-cyan-600 terminal-text">> ANALYZING SECURITY HEADERS...</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                        <span class="text-sm text-cyan-600 terminal-text">> TESTING COMMON EXPLOITS...</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="hidden">
+            <!-- Score Overview -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="gradient-border">
+                    <div class="gradient-border-inner text-center">
+                        <div class="text-4xl font-bold text-white mb-2" id="securityScore">--</div>
+                        <div class="text-sm text-gray-400">Security Score</div>
+                        <div class="mt-4">
+                            <div class="status-badge" id="scoreBadge">
+                                <i data-lucide="shield" class="w-3 h-3"></i>
+                                Analyzing...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2 glass-card p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Security Assessment</h3>
+                    <p class="text-gray-300 mb-4" id="assessmentText">Loading assessment...</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="vulnerabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vulnerabilities -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-white mb-6">Security Vulnerabilities Found</h3>
+                <div id="vulnerabilityList"></div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="glass-card p-6">
+                <h3 class="text-xl font-semibold text-white mb-4">
+                    <i data-lucide="lightbulb" class="w-5 h-5 inline mr-2"></i>
+                    Security Recommendations
+                </h3>
+                <div id="recommendationsList" class="space-y-4"></div>
+            </div>
+        </section>
     </main>
 
-    <div id="chatBox" class="fixed bottom-8 right-8 w-[22rem] md:w-[26rem] cyber-card rounded-[2rem] shadow-2xl hidden flex flex-col overflow-hidden z-[60] border border-cyan-500/30">
-        <div class="bg-cyan-600 p-5 flex justify-between items-center shadow-lg">
-            <div class="flex items-center gap-3">
-                <span class="text-xl">🤖</span>
-                <span class="font-black text-[11px] uppercase tracking-widest text-white">Security Intelligence Bot</span>
+    <!-- Chat Widget -->
+    <div class="chat-container">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="flex items-center gap-2">
+                    <span class="text-white font-semibold terminal-text">[AI_ASSISTANT]</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:text-cyan-200 terminal-text">
+                    <span class="terminal-text">[X]</span>
+                </button>
             </div>
-            <button onclick="toggleChat()">✕</button>
-        </div>
-        <div id="chatLogs" class="h-96 p-6 overflow-y-auto space-y-6 text-[11px] scrollbar-hide bg-slate-950/80">
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl rounded-tl-none text-slate-400 italic">
-                System online. Ask for code fixes to patch vulnerabilities.
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot terminal-text">
+                    > SYSTEM ONLINE. REQUEST VULNERABILITY ANALYSIS OR CODE EXPLOITS.
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    id="chatInput" 
+                    placeholder="> ENTER COMMAND..."
+                    class="chat-input"
+                    onkeypress="if(event.key === 'Enter') sendChatMessage()"
+                >
+                <button onclick="sendChatMessage()" class="chat-send terminal-text">
+                    [SEND]
+                </button>
             </div>
         </div>
-        <div class="p-4 bg-black/60 border-t border-cyan-900/30 flex gap-2">
-            <input id="chatInput" type="text" placeholder="Type command..." 
-                class="flex-1 bg-slate-900/50 border border-slate-800 p-4 rounded-xl text-[10px] outline-none focus:border-cyan-500 font-mono">
-            <button onclick="sendChat()" class="bg-cyan-600 hover:bg-cyan-500 w-12 rounded-xl flex items-center justify-center transition-all">➤</button>
+        
+        <div class="chat-bubble" onclick="toggleChat()">
+            <span class="text-white terminal-text font-bold">[AI]</span>
         </div>
     </div>
 
-    <button onclick="toggleChat()" class="fixed bottom-8 right-8 bg-cyan-600 w-16 h-16 rounded-2xl shadow-[0_0_30px_rgba(8,145,178,0.5)] flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50">
-        <span class="text-2xl">💬</span>
-    </button>
-
     <script>
-        window.toggleChat = () => document.getElementById('chatBox').classList.toggle('hidden');
+        // Initialize Lucide icons
+        lucide.createIcons();
 
-        function formatBotReply(text) {
-            if (text.includes("```")) {
-                const parts = text.split("```");
+        // Global variables
+        let scanHistory = [];
+        let currentScanData = null;
+        let vulnerabilityChart = null;
+
+        // Initialize metrics
+        let metrics = {
+            scanCount: 0,
+            totalScore: 0,
+            threatsFound: 0
+        };
+
+        // Load metrics from localStorage
+        function loadMetrics() {
+            const saved = localStorage.getItem('scannerMetrics');
+            if (saved) {
+                metrics = JSON.parse(saved);
+                updateMetricsDisplay();
+            }
+        }
+
+        // Save metrics to localStorage
+        function saveMetrics() {
+            localStorage.setItem('scannerMetrics', JSON.stringify(metrics));
+        }
+
+        // Update metrics display
+        function updateMetricsDisplay() {
+            const scans = String(metrics.scanCount).padStart(4, '0');
+            const threats = String(metrics.threatsFound).padStart(4, '0');
+            const avgScore = metrics.scanCount > 0 ? 
+                String(Math.round(metrics.totalScore / metrics.scanCount)).padStart(3, '0') : '---';
+            
+            document.getElementById('scanCount').textContent = scans;
+            document.getElementById('avgScore').textContent = avgScore;
+            document.getElementById('threatCount').textContent = threats;
+        }
+
+        // Toggle chat window
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('active');
+            
+            // Re-initialize icons when chat opens
+            if (chatWindow.classList.contains('active')) {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
+        }
+
+        // Send chat message
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user terminal-text';
+            userMsg.innerHTML = `> ${message}`;
+            messagesContainer.appendChild(userMsg);
+            
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/chat?msg=${encodeURIComponent(message)}`);
+                const data = await response.json();
+                
+                // Add bot response
+                const botMsg = document.createElement('div');
+                botMsg.className = 'message bot terminal-text';
+                botMsg.innerHTML = `> ${formatBotResponse(data.reply)}`;
+                messagesContainer.appendChild(botMsg);
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Re-initialize icons in new content
+                setTimeout(() => lucide.createIcons(), 100);
+                
+            } catch (error) {
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'message bot terminal-text';
+                errorMsg.innerHTML = '> [ERROR] CONNECTION TO ANALYST SERVER SEVERED';
+                messagesContainer.appendChild(errorMsg);
+                setTimeout(() => lucide.createIcons(), 100);
+            }
+        }
+
+        // Format bot response with code blocks
+        function formatBotResponse(text) {
+            if (text.includes('```')) {
+                const parts = text.split('```');
                 let formatted = parts[0];
+                
                 for (let i = 1; i < parts.length; i++) {
-                    if (i % 2 !== 0) formatted += `<pre>${parts[i].replace(/^python\n|^javascript\n|^nginx\n/, '')}</pre>`;
-                    else formatted += parts[i];
+                    if (i % 2 === 1) {
+                        const code = parts[i].replace(/^(python|javascript|nginx)\n/, '');
+                        formatted += `<div class="code-block">${code}</div>`;
+                    } else {
+                        formatted += parts[i];
+                    }
                 }
+                
                 return formatted;
             }
+            
             return text;
         }
 
-        window.sendChat = async () => {
-            const input = document.getElementById('chatInput');
-            const logs = document.getElementById('chatLogs');
-            if(!input.value.trim()) return;
-
-            logs.innerHTML += `<div class="flex justify-end"><div class="bg-cyan-600/10 border border-cyan-500/30 p-4 rounded-2xl text-cyan-100 max-w-[85%] font-mono">${input.value}</div></div>`;
-            const msg = input.value; input.value = "";
-            logs.scrollTop = logs.scrollHeight;
-
-            try {
-                const res = await fetch(`http://127.0.0.1:8000/chat?msg=${encodeURIComponent(msg)}`);
-                const data = await res.json();
-                logs.innerHTML += `<div class="flex justify-start"><div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-slate-300 max-w-[90%]">${formatBotReply(data.reply)}</div></div>`;
-                logs.scrollTop = logs.scrollHeight;
-            } catch (e) { 
-                logs.innerHTML += `<div class="text-rose-500 font-mono text-[9px] text-center uppercase tracking-widest">Error: Link_to_Analyst_Severed</div>`;
-            }
-        };
-
-        window.startScan = async () => {
+        // Start security scan
+        async function startScan() {
             const url = document.getElementById('urlInput').value.trim();
-            if(!url) return;
-
-            document.getElementById('loadingArea').classList.remove('hidden');
-            document.getElementById('resultsArea').classList.add('hidden');
-
-            try {
-                const res = await fetch(`http://127.0.0.1:8000/scan?url=${encodeURIComponent(url)}`);
-                const data = await res.json();
-
-                document.getElementById('scoreDisplay').innerText = data.score;
-                const threat = document.getElementById('threatLevel');
-                
-                if(data.score < 50) threat.innerHTML = "<b class='text-rose-500 uppercase tracking-widest font-black'>Critical Exposure:</b> Multiple high-severity vectors detected. Immediate remediation required.";
-                else if(data.score < 80) threat.innerHTML = "<b class='text-amber-500 uppercase tracking-widest font-black'>Baseline Detected:</b> Standard encryption active, but misconfigurations provide low-hanging fruit for attackers.";
-                else threat.innerHTML = "<b class='text-emerald-400 uppercase tracking-widest font-black'>Hardened Node:</b> Target follows modern standards. No major vulnerabilities found.";
-
-                let cards = "";
-                data.reports.forEach(item => {
-                    const borderColor = item.color === '#ef4444' ? 'border-rose-500/50' : 'border-amber-500/50';
-                    const textColor = item.color === '#ef4444' ? 'text-rose-400' : 'text-amber-400';
-                    const bgBadge = item.color === '#ef4444' ? 'bg-rose-500/10' : 'bg-amber-500/10';
-
-                    cards += `
-                        <div class="cyber-card rounded-[2rem] p-8 border-l-4 transition-all hover:scale-[1.01] ${borderColor}">
-                            <div class="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 class="text-xl font-black text-white uppercase italic tracking-tighter">${item.test}</h3>
-                                    <span class="text-[9px] font-mono opacity-40 uppercase tracking-widest">Module: Active_Probe_v2</span>
-                                </div>
-                                <span class="text-[10px] font-black px-4 py-1.5 rounded-full uppercase ${bgBadge} ${textColor} border border-current/20">
-                                    ${item.status}
-                                </span>
-                            </div>
-                            
-                            <div class="bg-cyan-500/5 border border-cyan-500/10 p-5 rounded-2xl mb-6">
-                                <p class="text-cyan-400 text-xs italic font-light">
-                                    💡 <strong class="uppercase font-black text-[10px] mr-2">Analogy:</strong> ${item.analogy}
-                                </p>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div>
-                                    <p class="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">Technical Risk Factor</p>
-                                    <p class="text-slate-300 text-sm font-light leading-relaxed">${item.risk}</p>
-                                </div>
-                                <div class="p-5 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
-                                    <p class="text-[9px] font-mono text-emerald-500 uppercase tracking-widest mb-2">Recommended Patch</p>
-                                    <p class="text-emerald-200/80 text-xs font-mono leading-relaxed">${item.fix}</p>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-
-                document.getElementById('reportList').innerHTML = cards;
-                document.getElementById('resultsArea').classList.remove('hidden');
-            } catch (e) {
-                alert("Ensure app.py is running on port 8000!");
-            } finally {
-                document.getElementById('loadingArea').classList.add('hidden');
+            
+            if (!url) {
+                showNotification('Please enter a valid API URL', 'error');
+                return;
             }
-        };
+            
+            // Show loading section
+            document.getElementById('loadingSection').classList.remove('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            
+            // Animate progress bar
+            let progress = 0;
+            const progressBar = document.getElementById('progressBar');
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 500);
+            
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/scan?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                
+                // Complete progress
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                
+                // Wait a moment for visual effect
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Update metrics
+                metrics.scanCount++;
+                metrics.totalScore += data.score;
+                metrics.threatsFound += data.reports.length;
+                saveMetrics();
+                updateMetricsDisplay();
+                
+                // Update scan time
+                const now = new Date();
+                document.getElementById('scanTime').textContent = 
+                    `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                // Store current scan data
+                currentScanData = data;
+                scanHistory.push({
+                    url: url,
+                    score: data.score,
+                    timestamp: now,
+                    vulnerabilities: data.reports.length
+                });
+                
+                // Display results
+                displayResults(data);
+                
+                // Hide loading, show results
+                document.getElementById('loadingSection').classList.add('hidden');
+                document.getElementById('resultsSection').classList.remove('hidden');
+                
+                // Add animations
+                document.getElementById('resultsSection').classList.add('fade-in');
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                showNotification('Failed to connect to the scanner. Please ensure the backend is running on port 8000.', 'error');
+                document.getElementById('loadingSection').classList.add('hidden');
+            }
+        }
 
-        document.getElementById('chatInput').addEventListener("keypress", (e) => { if (e.key === "Enter") sendChat(); });
+        // Display scan results
+        function displayResults(data) {
+            // Update security score
+            document.getElementById('securityScore').textContent = data.score;
+            
+            // Update score badge
+            const scoreBadge = document.getElementById('scoreBadge');
+            if (data.score < 50) {
+                scoreBadge.className = 'status-badge status-critical';
+                scoreBadge.innerHTML = '<i data-lucide="alert-triangle" class="w-3 h-3"></i> Critical Risk';
+            } else if (data.score < 80) {
+                scoreBadge.className = 'status-badge status-warning';
+                scoreBadge.innerHTML = '<i data-lucide="alert-circle" class="w-3 h-3"></i> Medium Risk';
+            } else {
+                scoreBadge.className = 'status-badge status-success';
+                scoreBadge.innerHTML = '<i data-lucide="check-circle" class="w-3 h-3"></i> Low Risk';
+            }
+            
+            // Update assessment text
+            const assessmentText = document.getElementById('assessmentText');
+            if (data.score < 50) {
+                assessmentText.innerHTML = '<strong class="text-red-400">Critical Security Issues Detected:</strong> Your API has multiple high-severity vulnerabilities that require immediate attention. Attackers can easily exploit these weaknesses.';
+            } else if (data.score < 80) {
+                assessmentText.innerHTML = '<strong class="text-yellow-400">Moderate Security Posture:</strong> Your API has some security configurations that could be improved. While not immediately critical, these issues should be addressed to strengthen your security.';
+            } else {
+                assessmentText.innerHTML = '<strong class="text-green-400">Good Security Foundation:</strong> Your API demonstrates solid security practices. Continue monitoring and regular security assessments to maintain this strong posture.';
+            }
+            
+            // Create vulnerability chart
+            createVulnerabilityChart(data.reports);
+            
+            // Display vulnerabilities
+            displayVulnerabilities(data.reports);
+            
+            // Display recommendations
+            displayRecommendations(data.reports);
+            
+            // Re-initialize icons
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+
+        // Create vulnerability chart
+        function createVulnerabilityChart(reports) {
+            const ctx = document.getElementById('vulnerabilityChart').getContext('2d');
+            
+            // Count vulnerabilities by severity
+            const severityCount = {
+                critical: 0,
+                medium: 0,
+                low: 0
+            };
+            
+            reports.forEach(report => {
+                if (report.color === '#ef4444') severityCount.critical++;
+                else if (report.color === '#f59e0b') severityCount.medium++;
+                else severityCount.low++;
+            });
+            
+            // Destroy existing chart
+            if (vulnerabilityChart) {
+                vulnerabilityChart.destroy();
+            }
+            
+            // Create new chart
+            vulnerabilityChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [severityCount.critical, severityCount.medium, severityCount.low],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#10b981'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display vulnerabilities
+        function displayVulnerabilities(reports) {
+            const container = document.getElementById('vulnerabilityList');
+            container.innerHTML = '';
+            
+            if (reports.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card p-6 text-center">
+                        <i data-lucide="shield-check" class="w-12 h-12 text-green-500 mx-auto mb-4"></i>
+                        <h4 class="text-lg font-semibold text-white mb-2">No Vulnerabilities Found</h4>
+                        <p class="text-gray-400">Great job! Your API passed all security checks.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            reports.forEach((report, index) => {
+                const severityClass = report.color === '#ef4444' ? 'severity-critical' : 
+                                     report.color === '#f59e0b' ? 'severity-medium' : 'severity-low';
+                
+                const statusClass = report.color === '#ef4444' ? 'status-critical' : 
+                                   report.color === '#f59e0b' ? 'status-warning' : 'status-success';
+                
+                const card = document.createElement('div');
+                card.className = `vulnerability-card ${severityClass} slide-up`;
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-1">${report.test}</h4>
+                            <span class="status-badge ${statusClass}">
+                                ${report.status}
+                            </span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-white">-${100 - (report.color === '#ef4444' ? 70 : report.color === '#f59e0b' ? 80 : 90)}</div>
+                            <div class="text-xs text-gray-400">Points</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="lightbulb" class="w-5 h-5 text-blue-400 mt-0.5"></i>
+                            <div>
+                                <div class="text-sm font-medium text-blue-400 mb-1">Security Analogy</div>
+                                <div class="text-sm text-gray-300">${report.analogy}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 text-red-400"></i>
+                                <span class="text-sm font-medium text-red-400">Risk Factor</span>
+                            </div>
+                            <p class="text-sm text-gray-300">${report.risk}</p>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i data-lucide="wrench" class="w-4 h-4 text-green-400"></i>
+                                <span class="text-sm font-medium text-green-400">Recommended Fix</span>
+                            </div>
+                            <p class="text-sm text-gray-300">${report.fix}</p>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Display recommendations
+        function displayRecommendations(reports) {
+            const container = document.getElementById('recommendationsList');
+            container.innerHTML = '';
+            
+            if (reports.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i data-lucide="trophy" class="w-12 h-12 text-yellow-500 mx-auto mb-4"></i>
+                        <p class="text-gray-400">Your API is well-secured! Continue with regular security audits and monitoring.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const recommendations = [
+                {
+                    icon: 'lock',
+                    title: 'Implement HTTPS Everywhere',
+                    description: 'Ensure all API endpoints use SSL/TLS encryption to protect data in transit.',
+                    priority: 'high'
+                },
+                {
+                    icon: 'shield',
+                    title: 'Add Rate Limiting',
+                    description: 'Implement rate limiting to prevent brute force attacks and API abuse.',
+                    priority: 'high'
+                },
+                {
+                    icon: 'eye-off',
+                    title: 'Remove Information Disclosure',
+                    description: 'Hide server headers and error messages that reveal system information.',
+                    priority: 'medium'
+                },
+                {
+                    icon: 'folder-lock',
+                    title: 'Secure Administrative Endpoints',
+                    description: 'Restrict access to admin panels and sensitive endpoints.',
+                    priority: 'medium'
+                }
+            ];
+            
+            recommendations.forEach((rec, index) => {
+                const priorityColor = rec.priority === 'high' ? 'text-red-400' : 'text-yellow-400';
+                
+                const item = document.createElement('div');
+                item.className = 'flex items-start gap-4 p-4 bg-gray-800/50 rounded-lg slide-up';
+                item.style.animationDelay = `${index * 0.1}s`;
+                
+                item.innerHTML = `
+                    <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${rec.icon}" class="w-5 h-5 text-blue-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-white font-medium mb-1">${rec.title}</h4>
+                        <p class="text-sm text-gray-400">${rec.description}</p>
+                        <span class="inline-block mt-2 text-xs ${priorityColor} font-medium">
+                            ${rec.priority.toUpperCase()} PRIORITY
+                        </span>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Show notification (could be enhanced with a toast library)
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 border-2 border-green-500 bg-black z-50 max-w-sm slide-up terminal-text`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-green-500 terminal-text">[!]</span>
+                    <span class="text-green-400 terminal-text">${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMetrics();
+            lucide.createIcons();
+            
+            // Add enter key support for URL input
+            document.getElementById('urlInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startScan();
+                }
+            });
+        });
     </script>
 </body>
 </html>
